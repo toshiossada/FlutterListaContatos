@@ -72,6 +72,7 @@ class _ContactPageState extends State<ContactPage> {
                               !_editingContact.img.isEmpty
                           ? FileImage(File(_editingContact.img))
                           : AssetImage('images/person.png'),
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),

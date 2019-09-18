@@ -5,6 +5,8 @@ import 'package:agenda_contato/helpers/contact_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+enum OrderOption { orderAZ, orderZA }
+
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -12,7 +14,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   var _helper = ContactHelper();
-  var contacts = List();
+  var contacts = List<Contact>();
 
   @override
   void initState() {
@@ -32,6 +34,21 @@ class _HomePageState extends State<HomePage> {
         title: Text('Contatos'),
         backgroundColor: Colors.red,
         centerTitle: true,
+        actions: <Widget>[
+          PopupMenuButton<OrderOption>(
+            itemBuilder: (context) => <PopupMenuEntry<OrderOption>>[
+              const PopupMenuItem<OrderOption>(
+                child: Text('Ordenar A-Z'),
+                value: OrderOption.orderAZ,
+              ),
+              const PopupMenuItem<OrderOption>(
+                child: Text('Ordenar Z-A'),
+                value: OrderOption.orderZA,
+              ),
+            ],
+            onSelected: _orderList,
+          )
+        ],
       ),
       backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton(
@@ -70,6 +87,7 @@ class _HomePageState extends State<HomePage> {
                     image: contact.img != null && !contact.img.isEmpty
                         ? FileImage(File(contact.img))
                         : AssetImage('images/person.png'),
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
@@ -168,8 +186,8 @@ class _HomePageState extends State<HomePage> {
                         onPressed: () {
                           _helper.delete(contact.id);
                           setState(() {
-                           contacts.remove(contact);
-                          Navigator.pop(context); 
+                            contacts.remove(contact);
+                            Navigator.pop(context);
                           });
                         },
                       ),
@@ -179,5 +197,20 @@ class _HomePageState extends State<HomePage> {
               ),
               onClosing: () {},
             ));
+  }
+
+  void _orderList(OrderOption result) {
+    switch (result) {
+      case OrderOption.orderAZ:
+        contacts.sort(
+            (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+        break;
+      case OrderOption.orderZA:
+        contacts.sort(
+            (a, b) => b.name.toLowerCase().compareTo(a.name.toLowerCase()));
+        break;
+    }
+
+    setState(() {});
   }
 }
