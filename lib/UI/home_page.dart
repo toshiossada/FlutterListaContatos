@@ -158,7 +158,7 @@ class _HomePageState extends State<HomePage> {
                           style: TextStyle(color: Colors.red, fontSize: 20),
                         ),
                         onPressed: () {
-                          launch('tel:$contact.phone');
+                          launch('tel:${contact.phone}');
                           Navigator.pop(context);
                         },
                       ),
