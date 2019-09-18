@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:agenda_contato/UI/contact_page.dart';
 import 'package:agenda_contato/helpers/contact_helper.dart';
 import 'package:flutter/material.dart';
 
@@ -16,14 +17,11 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-     Contact o = new Contact('Toshi Ossada2', 'toshiossada@gmail.com', '19991200273', null);
-     _helper.create(o);
+    // Contact o = new Contact(
+    //     'Toshi Ossada2', 'toshiossada@gmail.com', '19991200273', null);
+    // _helper.create(o);
 
-    _helper.getAll().then((list) {
-      setState(() {
-        contacts = list;
-      });
-    });
+    getAllContacts();
   }
 
   @override
@@ -36,7 +34,9 @@ class _HomePageState extends State<HomePage> {
       ),
       backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          _showContactPage();
+        },
         child: Icon(Icons.add),
         backgroundColor: Colors.red,
       ),
@@ -52,6 +52,9 @@ class _HomePageState extends State<HomePage> {
 
   Widget _contactCard(BuildContext context, Contact contact) {
     return GestureDetector(
+      onTap: () {
+        _showContactPage(contact: contact);
+      },
       child: Card(
         child: Padding(
           padding: EdgeInsets.all(10),
@@ -61,11 +64,13 @@ class _HomePageState extends State<HomePage> {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                        image: contact.img != null && !contact.img.isEmpty
-                            ? FileImage(File(contact.img))
-                            : AssetImage('images/person.png'))),
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image: contact.img != null && !contact.img.isEmpty
+                        ? FileImage(File(contact.img))
+                        : AssetImage('images/person.png'),
+                  ),
+                ),
               ),
               Padding(
                 padding: EdgeInsets.only(left: 10),
@@ -83,8 +88,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     Text(
                       contact.phone ?? '',
-                      style:
-                          TextStyle(fontSize: 18),
+                      style: TextStyle(fontSize: 18),
                     ),
                   ],
                 ),
@@ -94,5 +98,27 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  void getAllContacts() {
+    _helper.getAll().then((list) {
+      setState(() {
+        contacts = list;
+      });
+    });
+  }
+
+  void _showContactPage({Contact contact}) async {
+    final retContact = await Navigator.push(context,
+        MaterialPageRoute(builder: (context) => ContactPage(contact: contact)));
+
+    if (retContact != null) {
+      if (contact != null) {
+        await _helper.update(retContact);
+      } else {
+        await _helper.create(retContact);
+      }
+      getAllContacts();
+    }
   }
 }
